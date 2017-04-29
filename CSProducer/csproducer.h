@@ -2,19 +2,34 @@
 #define CSPRODUCER_H
 
 #include <stdio.h>
+#include <unistd.h>
+
+#include <rpc/types.h>
+#include <rpc/xdr.h>
+#include <rpc/rpc.h>
+
 #include "../CSCommon/define.h"
+#include "../CSCommon/types.h"
+#include "../CSCommon/log.h"
 
-// Actual stock
-static unsigned int stocks = 1000;
+GameConfig gc;
+unsigned int id;
+Boolean proceed;
 
-unsigned int max(unsigned int a, unsigned int b);
-unsigned int min(unsigned int a, unsigned int b);
+// Actual quantity of stock
+unsigned int stocks;
 
 // RPC functions
+void *check();
+void *exit_();
+void *ready();
+void *goPlay();
+
 unsigned int *getStocks();
 unsigned int *get(unsigned int *q);
 
 // Alarm
+void loadConfig(int a);
 void produce(int a);
 
 #endif // CSPRODUCER_H

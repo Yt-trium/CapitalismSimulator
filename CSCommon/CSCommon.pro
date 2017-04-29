@@ -3,7 +3,16 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
-SOURCES += main.c
+SOURCES += main.c \
+    log.c \
+    types.c
 
 HEADERS += \
-    define.h
+    define.h \
+    types.h \
+    log.h
+
+DISTFILES += \
+    ../LICENSE \
+    ../README.md \
+    ../makefile

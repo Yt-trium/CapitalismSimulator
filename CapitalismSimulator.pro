@@ -3,4 +3,6 @@ TEMPLATE = subdirs
 SUBDIRS += \
     CSProducer \
     CSAgent \
-    CSCommon
+    CSCommon \
+    CSCoordinator \
+    CSLauncher

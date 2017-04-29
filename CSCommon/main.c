@@ -1,7 +1,7 @@
-#include <stdio.h>
+#include "log.h"
 
 int main(int argc, char *argv[])
 {
-    printf("CSCommon\n");
+    writeLog("CSCommon\n");
     return 0;
 }

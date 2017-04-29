@@ -4,10 +4,15 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += main.c \
-    csagent.c
+    csagent.c \
+    ../CSCommon/types.c \
+    ../CSCommon/log.c \
+    csagentia.c
 
 HEADERS += \
     csagent.h \
-    ../CSCommon/define.h
+    ../CSCommon/define.h \
+    ../CSCommon/types.h \
+    ../CSCommon/log.h
 
 LIBS += -lrpcsvc -lnsl
