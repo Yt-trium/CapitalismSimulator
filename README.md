@@ -6,16 +6,16 @@ Capitalism Simulator : Projet de Système Distribués L3S6P17
 Le projet CapitalismSimulator est composé de 3 sous projets.
 
 ### CSProducer
+Le producteur de ressources
 Le nombre maximum de ressource est de 5.
 Le nombre maximum de CSProducer est de 5 par ressource (25).
-// TODO //
 
 ### CSAgent
+Les agents (joueurs)
 Le nombre maximum d'agent est de 30 (10 par types (individualiste, cooperatif, humain)).
-// TODO //
 
 ### CSCoordinator
-// TODO //
+Le coordinateur du jeux
 
 ### Autres
 
@@ -50,16 +50,28 @@ pour les prévenirs que tout est prêt.
 Les CSAgent et CSProducer vont ensuite attendre 1 seconde et demander la configuration au CSCoordinateur et commencer la partie.
 La seconde de latence est utilisé pour que le CSCoordinateur ai le temps de contacter tout les CSAgent et CSProducer
 avant de devoir envoyer les configuration.
+La partie commence jusqu'à ce que l'objectifs fixé soit atteint.
 
-
+#### Objectif
+Si le paramètre objectif est fixé a 0, alors les producteur arrivé a 0 ressource n'en produiront plus.
+Lorsqu'il n'existera plus aucun producteurs, alors le CSCoordinator enverra le signal d'extiction.
 
 ### Règles spécifiques
 
 #### Actions coordonées
+Lorsque les actions sont coordonnées, le CSCoordinator donne aux agents et producteurs l'ordre de commencer leurs tours.
+Lorsque les actions ne sont pas coordonnées, c'est des alarmes qui gèrent le début des tours pour les joueurs.
 
 #### Ressources épuisables
+Lorsque les ressources sont épuisables, les prodcteur produise des ressources en fonctions de leurs stocks actuel.
+S += S/2 + 1;
+
 #### Observations
+Lorsque les obserations sont activés, les agents du systèmes peuvent voir les ressources des producteurs et des autres agents.
+
 #### Vol
+Lorsque le vol est activés, un agent peut voler les ressource a un autre agent. Si l'agent en question était en train de surveiller
+ces ressources, alors il gagne 2 fois ce qui devait être volé.
 
 ## Technologies
 Langage : C

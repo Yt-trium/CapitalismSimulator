@@ -2,17 +2,19 @@
 
 int main(int argc, char *argv[])
 {
-    printf("CSCoordinator\n");
-    printf("Checking arguments...\n");
+    strcpy(me," CSC ");
+
+    writeLog("CSCoordinator\n");
+    writeLog("Checking arguments...\n");
 
     if(argc < 20)
     {
-        printf("ERROR: too few arguments\n");
+        writeLog("ERROR: too few arguments\n");
         exit(1);
     }
     if(argc > 20)
     {
-        printf("ERROR: too much arguments\n");
+        writeLog("ERROR: too much arguments\n");
         exit(1);
     }
 
@@ -43,7 +45,7 @@ int main(int argc, char *argv[])
     unsigned int z;
     z = 0;
 
-    printf("Checking producer process...\n");
+    writeLog("Checking producer process...\n");
 
     if(callAll(gc.R1NumberOfProducer,z++,PROGNUM_CSPRODUCER,PROC_CHECK))
         exit(2);
@@ -58,7 +60,7 @@ int main(int argc, char *argv[])
 
     z = 0;
 
-    printf("Checking agent process...\n");
+    writeLog("Checking agent process...\n");
 
     if(callAll(gc.humans,z,PROGNUM_CSAGENT,PROC_CHECK))
         exit(2);
@@ -69,7 +71,7 @@ int main(int argc, char *argv[])
     if(callAll(gc.cooperative,z,PROGNUM_CSAGENT,PROC_CHECK))
         exit(2);
 
-    printf("Registering RPC function...\n");
+    writeLog("Registering RPC function...\n");
 
     registerrpc(PROGNUM_CSCOORDINATOR,VERSNUM,CSCOORDINATOR_GETCONFIG,
                 getConfig,
@@ -80,11 +82,11 @@ int main(int argc, char *argv[])
     registerrpc(PROGNUM_CSCOORDINATOR,VERSNUM,CSCOORDINATOR_ENDGAME,
                 endGame,
                 xdr_void,
-                xdr_void);
+                xdr_void);    
 
     z = 0;
 
-    printf("Ready for producer process...\n");
+    writeLog("Ready for producer process...\n");
     if(callAll(gc.R1NumberOfProducer,z++,PROGNUM_CSPRODUCER,PROC_READY))
         exit(2);
     if(callAll(gc.R2NumberOfProducer,z++,PROGNUM_CSPRODUCER,PROC_READY))
@@ -98,7 +100,7 @@ int main(int argc, char *argv[])
 
     z = 0;
 
-    printf("Ready for agent process...\n");
+    writeLog("Ready for agent process...\n");
 
     if(callAll(gc.humans,z,PROGNUM_CSAGENT,PROC_READY))
         exit(2);
@@ -116,10 +118,17 @@ int main(int argc, char *argv[])
         sigaction(SIGALRM, &p, NULL);
         alarm(2);
     }
+    else if(gc.endCondition == 0)
+    {
+        struct sigaction p;
+        p.sa_handler = &makeThemPlay;
+        sigaction(SIGALRM, &p, NULL);
+        alarm(2);
+    }
 
-    printf("Launching svc_run()...\n");
+
+    writeLog("Launching svc_run()...\n");
     svc_run();
-
 
     return 0;
 }

@@ -1,44 +1,8 @@
 #include "csagent.h"
 
-void *check()
-{
-    writeLog("[CSA%u]-> get checked\n",id);
-    return NULL;
-}
-
-void *exit_()
-{
-    exit(0);
-    return NULL;
-}
-
-void *ready()
-{
-    writeLog("[CSA%u]-> get ready (load in 1s)\n",id);
-    proceed = True;
-
-    // Request for a configuration load
-    struct sigaction lc;
-    lc.sa_handler = &loadConfig;
-    sigaction(SIGALRM, &lc, NULL);
-    alarm(1);
-
-    return NULL;
-}
-
-
-void *goPlay()
-{
-    writeLog("[CSA%u]I CAN PLAY\n",id);
-    play(0);
-    writeLog("[CSA%u]I HAVE PLAYED\n",id);
-    return NULL;
-}
-
-
 unsigned int get(unsigned int q, unsigned int id_)
 {
-    writeLog("[CSA%u]get(%u) from %u\n",id,q,id_);
+    writeLog("get(%u) from %u\n",q,id_);
     enum clnt_stat stat;
 
     unsigned int q_ = q, r_ = 0;
@@ -54,20 +18,18 @@ unsigned int get(unsigned int q, unsigned int id_)
 
     if (stat != RPC_SUCCESS)
     {
-        writeLog("[CSA%u]RPC ERROR\n",id) ;
+        writeLog("RPC ERROR\n") ;
         clnt_perrno(stat) ;
         exit(1);
     }
 
     unsigned int r = r_;
-    writeLog("[CSA%u]r =  %u\n",id,r);
+    writeLog("get(%u) from %u returned %u\n",q,id_,r);
     return r;
 }
 
 unsigned int getStocks(unsigned int id_)
 {
-    // writeLog("[CSA%u]getStocks()\n",id);
-
     if(!gc.allowObservation)
         return 0;
 
@@ -86,33 +48,82 @@ unsigned int getStocks(unsigned int id_)
 
     if (stat != RPC_SUCCESS)
     {
-        writeLog("[CSA%u]RPC ERROR\n",id) ;
+        writeLog("RPC ERROR\n") ;
         clnt_perrno(stat) ;
         exit(1);
     }
 
     unsigned int r = r_;
-    // writeLog("[CSA%u]r =  %u\n",id,r);
     return r;
 }
 
-void humanAgent()
+unsigned int getAgentStocks(unsigned int id_, Resource rs)
 {
-    writeLog("[CSA%u]HUMAN AGENT ROUND\n",id);
-    unsigned int c, a = 0;
+    if(id_ == id)
+        return 0;
 
     if(!gc.allowObservation)
-        writeLog("[CSA%u]observation not allowed (always show 0)\n",id);
-    printProducerStates();
+        return 0;
 
-    scanf("%d %d",&c, &a);
-    writeLog("[CSA%u]I PLAY %u %u\n",id,c,a);
+    enum clnt_stat stat;
 
+    unsigned int r_ = 0;
+
+    stat = callrpc( host_csagent[id_],
+                    PROGNUM_CSAGENT+id_,VERSNUM,
+                    CSAGENT_GETSTOCKS,
+                    (xdrproc_t)xdr_int,
+                    (char *)&rs,
+                    (xdrproc_t)xdr_int,
+                    (char *)&r_
+                   );
+
+    if (stat != RPC_SUCCESS)
+    {
+        writeLog("RPC ERROR\n");
+        clnt_perrno(stat);
+        exit(1);
+    }
+
+    unsigned int r = r_;
+    return r;
 }
+
+
+
+unsigned int getAgent(unsigned int id_, Resource rs)
+{
+    if(!gc.Robbery)
+        return 0;
+
+    enum clnt_stat stat;
+
+    unsigned int r_ = 0;
+
+    stat = callrpc( host_csagent[id_],
+                    PROGNUM_CSAGENT+id_,VERSNUM,
+                    CSAGENT_GET,
+                    (xdrproc_t)xdr_int,
+                    (char *)rs,
+                    (xdrproc_t)xdr_int,
+                    (char *)&r_
+                   );
+
+    if (stat != RPC_SUCCESS)
+    {
+        writeLog("RPC ERROR\n");
+        clnt_perrno(stat);
+        exit(1);
+    }
+
+    unsigned int r = r_;
+    return r;
+}
+
 
 void loadConfig(int a)
 {
-    writeLog("[CSA%u]Loading GameConfig from CSCoordinator\n",id);
+    writeLog("Loading GameConfig from CSCoordinator\n");
     enum clnt_stat stat;
     GameConfig r_;
     stat = callrpc( host_coordinator,
@@ -126,7 +137,7 @@ void loadConfig(int a)
 
     if (stat != RPC_SUCCESS)
     {
-        writeLog("[CSA%u]RPC ERROR\n",id) ;
+        writeLog("RPC ERROR\n");
         clnt_perrno(stat) ;
         exit(1);
     }
@@ -145,6 +156,8 @@ void loadConfig(int a)
 
 void play(int a)
 {
+    protecting = False;
+
     if(id < 10)
         humanAgent();
     else if(id < 20)
@@ -164,26 +177,57 @@ void printProducerStates()
 {
     unsigned int i,z;
     z=0;
-    writeLog("[CSA%u]Showing all producer states\n",id);
+    writeLog("Showing all producer states\n");
     for(i=0;i<gc.R1NumberOfProducer;i++)
     {
-        writeLog("[CSA%u]R1 P%u : %u\n",id,i,getStocks(i+z*5));
+        writeLog("R1 P%u : %u\n",i,getStocks(i+z*5));
     }z++;
     for(i=0;i<gc.R2NumberOfProducer;i++)
     {
-        writeLog("[CSA%u]R2 P%u : %u\n",id,i,getStocks(i+z*5));
+        writeLog("R2 P%u : %u\n",i,getStocks(i+z*5));
     }z++;
     for(i=0;i<gc.R3NumberOfProducer;i++)
     {
-        writeLog("[CSA%u]R3 P%u : %u\n",id,i,getStocks(i+z*5));
+        writeLog("R3 P%u : %u\n",i,getStocks(i+z*5));
     }z++;
     for(i=0;i<gc.R4NumberOfProducer;i++)
     {
-        writeLog("[CSA%u]R4 P%u : %u\n",id,i,getStocks(i+z*5));
+        writeLog("R4 P%u : %u\n",i,getStocks(i+z*5));
     }z++;
     for(i=0;i<gc.R5NumberOfProducer;i++)
     {
-        writeLog("[CSA%u]R5 P%u : %u\n",id,i,getStocks(i+z*5));
+        writeLog("R5 P%u : %u\n",i,getStocks(i+z*5));
+    }
+}
+
+void printAgentStates()
+{
+    unsigned int i,z;
+    z=0;
+    writeLog("Showing all agent states\n");
+    for(i=0;i<gc.humans;i++)
+    {
+        writeLog("R1 A%02u : %u\n",i+z*10,getAgentStocks(i+z*10,RSRC1));
+        writeLog("R2 A%02u : %u\n",i+z*10,getAgentStocks(i+z*10,RSRC2));
+        writeLog("R3 A%02u : %u\n",i+z*10,getAgentStocks(i+z*10,RSRC3));
+        writeLog("R4 A%02u : %u\n",i+z*10,getAgentStocks(i+z*10,RSRC4));
+        writeLog("R5 A%02u : %u\n",i+z*10,getAgentStocks(i+z*10,RSRC5));
+    }z++;
+    for(i=0;i<gc.individualistic;i++)
+    {
+        writeLog("R1 A%02u : %u\n",i+z*10,getAgentStocks(i+z*10,RSRC1));
+        writeLog("R2 A%02u : %u\n",i+z*10,getAgentStocks(i+z*10,RSRC2));
+        writeLog("R3 A%02u : %u\n",i+z*10,getAgentStocks(i+z*10,RSRC3));
+        writeLog("R4 A%02u : %u\n",i+z*10,getAgentStocks(i+z*10,RSRC4));
+        writeLog("R5 A%02u : %u\n",i+z*10,getAgentStocks(i+z*10,RSRC5));
+    }z++;
+    for(i=0;i<gc.cooperative;i++)
+    {
+        writeLog("R1 A%02u : %u\n",i+z*10,getAgentStocks(i+z*10,RSRC1));
+        writeLog("R2 A%02u : %u\n",i+z*10,getAgentStocks(i+z*10,RSRC2));
+        writeLog("R3 A%02u : %u\n",i+z*10,getAgentStocks(i+z*10,RSRC3));
+        writeLog("R4 A%02u : %u\n",i+z*10,getAgentStocks(i+z*10,RSRC4));
+        writeLog("R5 A%02u : %u\n",i+z*10,getAgentStocks(i+z*10,RSRC5));
     }
 }
 
@@ -206,21 +250,43 @@ void checkEnd()
 
     if(IWIN == True)
     {
-        writeLog("[CSA%u] -----  I HAVE WIN -----",id);
+        writeLog("-----  I HAVE WIN -----\n");
         blingBling();
+        writeLog("-----  CALING END GAME IN 1 S -----\n");
 
-        callrpc( host_coordinator,
-                 PROGNUM_CSCOORDINATOR,VERSNUM,
-                 CSCOORDINATOR_ENDGAME,
-                 (xdrproc_t)xdr_void,
-                 (char *)NULL,
-                 (xdrproc_t)xdr_void,
-                 (char *)NULL
-                 );
+        struct sigaction x;
+        x.sa_handler = &callEnd;
+        sigaction(SIGALRM, &x, NULL);
+        alarm(1);
     }
+
+    writeLog("return\n");
+    return;
 }
 
 void blingBling()
 {
-    writeLog("[CSA%u] %u %u %u %u %u\n",id,stocksR1,stocksR2,stocksR3,stocksR4,stocksR5);
+    writeLog("score : %u %u %u %u %u\n",stocksR1,stocksR2,stocksR3,stocksR4,stocksR5);
+}
+
+void callEnd(int a)
+{
+    writeLog("callEnd\n");
+
+    enum clnt_stat stat;
+    stat = callrpc( host_coordinator,
+                    PROGNUM_CSCOORDINATOR,VERSNUM,
+                    CSCOORDINATOR_ENDGAME,
+                    (xdrproc_t)xdr_void,
+                    (char *)NULL,
+                    (xdrproc_t)xdr_void,
+                    (char *)NULL
+                    );
+
+    if (stat != RPC_SUCCESS)
+    {
+        writeLog("RPC ERROR\n");
+        clnt_perrno(stat) ;
+        exit(1);
+    }
 }

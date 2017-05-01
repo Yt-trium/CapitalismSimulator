@@ -1,4 +1,5 @@
 #include "types.h"
+#include "log.h"
 
 Boolean intToBool(int x)
 {
@@ -36,14 +37,28 @@ bool_t xdr_gc(XDR *xdrs, GameConfig *a)
 
 void printf_GameConfig(GameConfig a)
 {
-    printf("- printf_GameConfig -\n");
+    writeLog("- printf_GameConfig -\n");
 
-    printf("R1InitialQuantity  : %u\n",a.R1InitialQuantity);
-    printf("R1NumberOfProducer : %u\n",a.R1NumberOfProducer);
+    writeLog("coordinatedActions : %u\n",a.coordinatedActions);
+    writeLog("exhaustibleResource : %u\n",a.exhaustibleResource);
+    writeLog("allowObservation : %u\n",a.allowObservation);
+    writeLog("Robbery : %u\n",a.Robbery);
+    writeLog("endCondition : %u\n",a.endCondition);
 
-    printf("Humans %u\n",a.humans);
-    printf("Indivi %u\n",a.individualistic);
-    printf("Cooper %u\n",a.cooperative);
+    writeLog("R1InitialQuantity  : %u\n",a.R1InitialQuantity);
+    writeLog("R1NumberOfProducer : %u\n",a.R1NumberOfProducer);
+    writeLog("R2InitialQuantity  : %u\n",a.R2InitialQuantity);
+    writeLog("R2NumberOfProducer : %u\n",a.R2NumberOfProducer);
+    writeLog("R3InitialQuantity  : %u\n",a.R3InitialQuantity);
+    writeLog("R3NumberOfProducer : %u\n",a.R3NumberOfProducer);
+    writeLog("R4InitialQuantity  : %u\n",a.R4InitialQuantity);
+    writeLog("R4NumberOfProducer : %u\n",a.R4NumberOfProducer);
+    writeLog("R5InitialQuantity  : %u\n",a.R5InitialQuantity);
+    writeLog("R5NumberOfProducer : %u\n",a.R5NumberOfProducer);
+
+    writeLog("Humans %u\n",a.humans);
+    writeLog("Indivi %u\n",a.individualistic);
+    writeLog("Cooper %u\n",a.cooperative);
 }
 
 unsigned int max(unsigned int a, unsigned int b)

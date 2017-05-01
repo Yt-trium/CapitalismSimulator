@@ -6,7 +6,8 @@ CONFIG -= qt
 SOURCES += main.c \
     csproducer.c \
     ../CSCommon/types.c \
-    ../CSCommon/log.c
+    ../CSCommon/log.c \
+    csproducer_rpc.c
 
 HEADERS += \
     csproducer.h \

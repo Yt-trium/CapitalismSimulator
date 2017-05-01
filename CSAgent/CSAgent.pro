@@ -7,7 +7,8 @@ SOURCES += main.c \
     csagent.c \
     ../CSCommon/types.c \
     ../CSCommon/log.c \
-    csagentia.c
+    csagentia.c \
+    csagent_rpc.c
 
 HEADERS += \
     csagent.h \

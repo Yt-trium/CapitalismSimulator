@@ -10,7 +10,7 @@ void writeLog(const char* format, ...)
 
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
-    snprintf(d, sizeof(d), "[%d-%d-%d %d:%d:%d]", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+    snprintf(d, sizeof(d), "[%d-%d-%d %02d:%02d:%02d][%s]", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, me);
 
     va_start(args, format);
     vsnprintf(l, sizeof(l), format, args);

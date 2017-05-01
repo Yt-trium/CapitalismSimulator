@@ -17,7 +17,7 @@ Boolean checkGameConfig(GameConfig a)
 
     if(a.humans > 0 && a.coordinatedActions != True)
     {
-        printf("ERROR: arguments integrity\n");
+        writeLog("ERROR: arguments integrity\n");
         return 1;
     }
 
@@ -27,27 +27,27 @@ Boolean checkGameConfig(GameConfig a)
         a.R4NumberOfProducer > 5 ||
         a.R5NumberOfProducer > 5)
     {
-        printf("ERROR: arguments integrity\n");
+        writeLog("ERROR: arguments integrity\n");
         return 1;
     }
 
     if(a.R1NumberOfProducer+a.R2NumberOfProducer+a.R3NumberOfProducer+
        a.R4NumberOfProducer+a.R5NumberOfProducer == 0)
     {
-        printf("ERROR: arguments integrity\n");
+        writeLog("ERROR: arguments integrity\n");
         return 1;
     }
     if( a.cooperative > 10 ||
         a.individualistic > 10 ||
         a.humans > 10)
     {
-        printf("ERROR: arguments integrity\n");
+        writeLog("ERROR: arguments integrity\n");
         return 1;
     }
 
     if(a.cooperative+a.individualistic+a.humans == 0)
     {
-        printf("ERROR: arguments integrity\n");
+        writeLog("ERROR: arguments integrity\n");
         return 1;
     }
 
@@ -77,10 +77,10 @@ Boolean callAll(unsigned int n, unsigned int z, unsigned int type, unsigned int 
                 (char *)NULL
                 ))
         {
-            printf("ERROR: callrpc with code %u-%u-%u\n",i,z,type);
-            printf("host : %s\n",host);
-            printf("prog : %u\n",type+i+z*5);
-            printf("proc : %u\n",proc);
+            writeLog("ERROR: callrpc with code %u-%u-%u\n",i,z,type);
+            writeLog("host : %s\n",host);
+            writeLog("prog : %u\n",type+i+z*5);
+            writeLog("proc : %u\n",proc);
             return 1;
         }
     }
@@ -123,7 +123,16 @@ GameConfig *getConfig()
 
 void makeThemPlay(int a)
 {
-    printf("Making the producer to play...\n");
+    if(gc.endCondition == 0)
+        checkProducerAlive();
+
+    if(!gc.coordinatedActions)
+    {
+        ualarm(100000, 0);
+        return;
+    }
+
+    writeLog("Making the producer to play...\n");
     unsigned int z=0;
     if(callAll(gc.R1NumberOfProducer,z++,PROGNUM_CSPRODUCER,PROC_GOPLAY))
         exit(2);
@@ -136,7 +145,7 @@ void makeThemPlay(int a)
     if(callAll(gc.R5NumberOfProducer,z++,PROGNUM_CSPRODUCER,PROC_GOPLAY))
         exit(2);
 
-    printf("Making the agent to play...\n");
+    writeLog("Making the agent to play...\n");
     z=0;
     if(callAll(gc.humans,z,PROGNUM_CSAGENT,PROC_GOPLAY))
         exit(2);
@@ -147,7 +156,7 @@ void makeThemPlay(int a)
     if(callAll(gc.cooperative,z,PROGNUM_CSAGENT,PROC_GOPLAY))
         exit(2);
 
-    printf("End of the turn...\n");
+    writeLog("End of the turn...\n");
     ualarm(100000, 0);
 }
 
@@ -156,21 +165,24 @@ void *endGame()
     static Boolean x = False;
 
     if(x==True)
+    {
         return NULL;
+    }
+
     x=True;
 
-    writeLog("CSC ENDING THE GAME\n");
+    writeLog("ENDING THE GAME\n");
 
     unsigned int z=0;
-    writeLog("CSC ENDING R1\n");
+    writeLog("ENDING R1\n");
     callAll(gc.R1NumberOfProducer,z++,PROGNUM_CSPRODUCER,PROC_EXIT);
-    writeLog("CSC ENDING R2\n");
+    writeLog("ENDING R2\n");
     callAll(gc.R2NumberOfProducer,z++,PROGNUM_CSPRODUCER,PROC_EXIT);
-    writeLog("CSC ENDING R3\n");
+    writeLog("ENDING R3\n");
     callAll(gc.R3NumberOfProducer,z++,PROGNUM_CSPRODUCER,PROC_EXIT);
-    writeLog("CSC ENDING R4\n");
+    writeLog("ENDING R4\n");
     callAll(gc.R4NumberOfProducer,z++,PROGNUM_CSPRODUCER,PROC_EXIT);
-    writeLog("CSC ENDING R5\n");
+    writeLog("ENDING R5\n");
     callAll(gc.R5NumberOfProducer,z++,PROGNUM_CSPRODUCER,PROC_EXIT);
 
     z=0;
@@ -182,4 +194,55 @@ void *endGame()
     z+=2;
 
     exit(0);
+}
+
+void checkProducerAlive()
+{
+    // Check every producer
+    // If every producer have 0 ressource, send endGame.
+
+    Boolean end = True;
+    unsigned int i,z,r_;
+    z=0;
+
+    for(i=0;i<gc.R1NumberOfProducer;i++)
+    {
+        callrpc( host_csproducer[i],
+                 PROGNUM_CSPRODUCER+i+z*5,VERSNUM,
+                 CSPRODUCER_GETSTOCKS,
+                 (xdrproc_t)xdr_void,
+                 (char *)NULL,
+                 (xdrproc_t)xdr_int,
+                 (char *)&r_
+                 );
+
+        if(r_ > 0)
+            end = False;
+    }z++;
+
+    if(end = True)
+    {
+        writeLog("ENDING THE GAME\n");
+
+        writeLog("ENDING R1\n");
+        callAll(gc.R1NumberOfProducer,z++,PROGNUM_CSPRODUCER,PROC_EXIT);
+        writeLog("ENDING R2\n");
+        callAll(gc.R2NumberOfProducer,z++,PROGNUM_CSPRODUCER,PROC_EXIT);
+        writeLog("ENDING R3\n");
+        callAll(gc.R3NumberOfProducer,z++,PROGNUM_CSPRODUCER,PROC_EXIT);
+        writeLog("ENDING R4\n");
+        callAll(gc.R4NumberOfProducer,z++,PROGNUM_CSPRODUCER,PROC_EXIT);
+        writeLog("ENDING R5\n");
+        callAll(gc.R5NumberOfProducer,z++,PROGNUM_CSPRODUCER,PROC_EXIT);
+
+        z=0;
+        callAll(gc.humans,z,PROGNUM_CSPRODUCER,PROC_EXIT);
+        z+=2;
+        callAll(gc.individualistic,z,PROGNUM_CSPRODUCER,PROC_EXIT);
+        z+=2;
+        callAll(gc.cooperative,z,PROGNUM_CSPRODUCER,PROC_EXIT);
+        z+=2;
+
+        exit(0);
+    }
 }

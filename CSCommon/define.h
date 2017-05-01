@@ -35,6 +35,8 @@ static const char host_coordinator[12]="127.0.0.1";
 #define PROC_GOPLAY             44
 #define CSPRODUCER_GETSTOCKS    101
 #define CSPRODUCER_GET          102
+#define CSAGENT_GETSTOCKS       201
+#define CSAGENT_GET             202
 #define CSCOORDINATOR_GETCONFIG 301
 #define CSCOORDINATOR_ENDGAME   302
 

@@ -2,8 +2,10 @@
 
 int main(int argc, char *argv[])
 {
+    strcpy(me,"CSP__");
+
     writeLog("CSProducer\n");
-    writeLog("[CSP ]Checking arguments...\n");
+    writeLog("Checking arguments...\n");
 
     if(argc != 2)
     {
@@ -12,9 +14,10 @@ int main(int argc, char *argv[])
     }
 
     id = atoi(argv[1]);
+    sprintf(me,"CSP%02u",id);
     proceed = False;
 
-    writeLog("[CSP%u]Registering RPC function...\n",id);
+    writeLog("Registering RPC function...\n");
 
     registerrpc(PROGNUM_CSPRODUCER+id,VERSNUM,PROC_CHECK,
                 check,
@@ -40,47 +43,7 @@ int main(int argc, char *argv[])
                 getStocks,
                 xdr_void,xdr_int);
 
-    /*
-    if(argc != 4)
-    {
-        writeLog("usage : %s id exhaustible(0/1) initialQuantity",argv[0]);
-        return 1;
-    }
-    unsigned int id = atoi(argv[1]);
-
-    if(atoi(argv[2]))
-        exhaustible = TRUE;
-    else
-        exhaustible = FALSE;
-
-    stocks = atoi(argv[3]);
-
-    writeLog("CSProducer - stocks = %u\n",stocks);
-
-    // RPC function
-    registerrpc(PROGNUM_CSPRODUCER+id,VERSNUM,PROC_READY,
-                ready,
-                xdr_int,xdr_int);
-
-    registerrpc(PROGNUM_CSPRODUCER+id,VERSNUM,CSPRODUCER_GET,
-                get,
-                xdr_int,xdr_int);
-
-    registerrpc(PROGNUM_CSPRODUCER+id,VERSNUM,CSPRODUCER_GETSTOCKS,
-                getStocks,
-                xdr_int,xdr_int);
-
-    if(exhaustible)
-    {
-        // Alarm for ressource production
-        struct sigaction prod;
-        prod.sa_handler = &produce;
-        sigaction(SIGALRM, &prod, NULL);
-        alarm(CSPRODCUER_TIMER);
-    }
-    */
-
-    writeLog("[CSP%u]Launching svc_run()...\n",id);
+    writeLog("Launching svc_run()...\n");
     svc_run();
 
     return 0;

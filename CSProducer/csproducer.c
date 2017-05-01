@@ -1,70 +1,8 @@
 #include "csproducer.h"
 
-void *check()
-{
-    writeLog("[CSP%u]-> get checked\n",id);
-    return NULL;
-}
-
-void *exit_()
-{
-    exit(0);
-    return NULL;
-}
-
-void *ready()
-{
-    writeLog("[CSP%u]-> get ready (load in 1s)\n",id);
-    proceed = True;
-
-    // Request for a configuration load
-    struct sigaction lc;
-    lc.sa_handler = &loadConfig;
-    sigaction(SIGALRM, &lc, NULL);
-    alarm(1);
-
-    return NULL;
-}
-
-void *goPlay()
-{
-    writeLog("[CSP%u]I CAN PLAY\n",id);
-    produce(0);
-    writeLog("[CSP%u]I HAVE PLAYED\n",id);
-    return NULL;
-}
-
-
-unsigned int *getStocks()
-{
-    static unsigned int r;
-    r = stocks;
-
-    writeLog("[CSP%u][getStocks]stocks = %u\n",id,stocks);
-    return &r;
-}
-
-unsigned int *get(unsigned int *q)
-{
-    static unsigned int r;
-
-    if(gc.exhaustibleResource)
-    {
-        r = min((*q),stocks);
-        stocks -= r;
-
-        writeLog("[CSP%u][get      ]stocks = %u\n",id,stocks);
-    }
-    else
-        r = (*q);
-
-    return &r;
-}
-
-
 void loadConfig(int a)
 {
-    writeLog("[CSP%u]Loading GameConfig from CSCoordinator\n",id);
+    writeLog("Loading GameConfig from CSCoordinator\n");
     enum clnt_stat stat;
     GameConfig r_;
     stat = callrpc( host_coordinator,
@@ -78,7 +16,7 @@ void loadConfig(int a)
 
     if (stat != RPC_SUCCESS)
     {
-        writeLog("[CSP%u]RPC ERROR\n",id);
+        writeLog("RPC ERROR\n");
         clnt_perrno(stat) ;
         exit(1);
     }
@@ -119,9 +57,12 @@ void loadConfig(int a)
 
 void produce(int a)
 {
+    if(gc.endCondition == 0 && stocks == 0)
+        return;
+
+    unsigned int old_ = stocks;
     stocks += stocks/2 + 1;
-    writeLog("[CSP%u][produce  ]stocks = %u\n",id,stocks);
-    // alarm(CSPRODUCER_TIMER);
+    writeLog("- produce() [before : %u - after  : %u]\n",old_,stocks);
 
     if(!gc.coordinatedActions)
         ualarm (100000*CSPRODUCER_TIMER, 0);

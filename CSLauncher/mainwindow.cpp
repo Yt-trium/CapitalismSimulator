@@ -1,5 +1,6 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "ui_mainwindow.h"+
+#include <QTest>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -47,8 +48,6 @@ void MainWindow::on_launch_PB_clicked()
         QString program = "/home/yttrium/Documents/Cours/CapitalismSimulator/build-CapitalismSimulator-Desktop-Debug/CSProducer/CSProducer";
         QStringList arguments;
         arguments.push_back(QString::number(i+z*5));
-        arguments.push_back(QString::number(exhaustibleResource));
-        arguments.push_back(QString::number(R1InitialQuantity));
         process->start(program, arguments);
     }
     z++;
@@ -58,8 +57,6 @@ void MainWindow::on_launch_PB_clicked()
         QString program = "/home/yttrium/Documents/Cours/CapitalismSimulator/build-CapitalismSimulator-Desktop-Debug/CSProducer/CSProducer";
         QStringList arguments;
         arguments.push_back(QString::number(i+z*5));
-        arguments.push_back(QString::number(exhaustibleResource));
-        arguments.push_back(QString::number(R2InitialQuantity));
         process->start(program, arguments);
     }
     z++;
@@ -69,8 +66,6 @@ void MainWindow::on_launch_PB_clicked()
         QString program = "/home/yttrium/Documents/Cours/CapitalismSimulator/build-CapitalismSimulator-Desktop-Debug/CSProducer/CSProducer";
         QStringList arguments;
         arguments.push_back(QString::number(i+z*5));
-        arguments.push_back(QString::number(exhaustibleResource));
-        arguments.push_back(QString::number(R3InitialQuantity));
         process->start(program, arguments);
     }
     z++;
@@ -80,8 +75,6 @@ void MainWindow::on_launch_PB_clicked()
         QString program = "/home/yttrium/Documents/Cours/CapitalismSimulator/build-CapitalismSimulator-Desktop-Debug/CSProducer/CSProducer";
         QStringList arguments;
         arguments.push_back(QString::number(i+z*5));
-        arguments.push_back(QString::number(exhaustibleResource));
-        arguments.push_back(QString::number(R4InitialQuantity));
         process->start(program, arguments);
     }
     z++;
@@ -91,32 +84,11 @@ void MainWindow::on_launch_PB_clicked()
         QString program = "/home/yttrium/Documents/Cours/CapitalismSimulator/build-CapitalismSimulator-Desktop-Debug/CSProducer/CSProducer";
         QStringList arguments;
         arguments.push_back(QString::number(i+z*5));
-        arguments.push_back(QString::number(exhaustibleResource));
-        arguments.push_back(QString::number(R5InitialQuantity));
         process->start(program, arguments);
     }
 
     // Create CSAgent
     z=0;
-    // Cooperative
-    for(i=0;i<cooperative;i++)
-    {
-        QProcess *process = new QProcess(this);
-        QString program = "/home/yttrium/Documents/Cours/CapitalismSimulator/build-CapitalismSimulator-Desktop-Debug/CSAgent/CSAgent";
-        QStringList arguments;
-        arguments.push_back("1");
-        process->start(program, arguments);
-    }
-
-    // Individualistic
-    for(i=0;i<individualistic;i++)
-    {
-        QProcess *process = new QProcess(this);
-        QString program = "/home/yttrium/Documents/Cours/CapitalismSimulator/build-CapitalismSimulator-Desktop-Debug/CSAgent/CSAgent";
-        QStringList arguments;
-        arguments.push_back("2");
-        process->start(program, arguments);
-    }
 
     // Humans
     for(i=0;i<humans;i++)
@@ -124,7 +96,29 @@ void MainWindow::on_launch_PB_clicked()
         QProcess *process = new QProcess(this);
         QString program = "/home/yttrium/Documents/Cours/CapitalismSimulator/build-CapitalismSimulator-Desktop-Debug/CSAgent/CSAgent";
         QStringList arguments;
-        arguments.push_back("0");
+        arguments.push_back(QString::number(i+z*5));
+        process->start(program, arguments);
+    }
+
+    z+=2;
+    // Individualistic
+    for(i=0;i<individualistic;i++)
+    {
+        QProcess *process = new QProcess(this);
+        QString program = "/home/yttrium/Documents/Cours/CapitalismSimulator/build-CapitalismSimulator-Desktop-Debug/CSAgent/CSAgent";
+        QStringList arguments;
+        arguments.push_back(QString::number(i+z*5));
+        process->start(program, arguments);
+    }
+
+    z+=2;
+    // Cooperative
+    for(i=0;i<cooperative;i++)
+    {
+        QProcess *process = new QProcess(this);
+        QString program = "/home/yttrium/Documents/Cours/CapitalismSimulator/build-CapitalismSimulator-Desktop-Debug/CSAgent/CSAgent";
+        QStringList arguments;
+        arguments.push_back(QString::number(i+z*5));
         process->start(program, arguments);
     }
 
@@ -150,10 +144,11 @@ void MainWindow::on_launch_PB_clicked()
     arguments.push_back(QString::number(R5InitialQuantity));
     arguments.push_back(QString::number(R5NumberOfProducer));
 
-    arguments.push_back(QString::number(cooperative));
-    arguments.push_back(QString::number(individualistic));
     arguments.push_back(QString::number(humans));
+    arguments.push_back(QString::number(individualistic));
+    arguments.push_back(QString::number(cooperative));
 
     // BP
-    // process->start(program, arguments);
+    QTest::qSleep(1000);
+    process->start(program, arguments);
 }

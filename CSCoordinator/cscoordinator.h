@@ -20,5 +20,6 @@ void *endGame();
 
 unsigned int *get(unsigned int *q);
 void makeThemPlay(int a);
+void checkProducerAlive();
 
 #endif // CSCOORDINATOR_H
